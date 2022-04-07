@@ -1,6 +1,6 @@
 ### Halo 3 
 
-Game: Halo 3 MCC Update 7
+Game: Halo 3 MCC Update 7  
 Build: Oct 11 2021 04:58:42
 
 
