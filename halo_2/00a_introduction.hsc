@@ -1,0 +1,2657 @@
+; Decompiled with Blamite
+; Source file: 00a_introduction.hsc
+; Start time: 4/7/2022 7:17:02
+; Decompilation finished in ~0.0019011s
+; Remember that all script code is property of Bungie/343 Industries.
+; You have no rights. Play nice.
+
+
+; GLOBALS
+
+(global string data_mine_mission_segment "")
+(global short sound_offset 15)
+(global short prediction_offset 45)
+
+
+; SCRIPTS
+
+(script static unit player0
+    (begin
+        (unit (list_get (players) 0))
+    )
+)
+
+(script static unit player1
+    (begin
+        (unit (list_get (players) 1))
+    )
+)
+
+(script static short player_count
+    (begin
+        (list_count (players))
+    )
+)
+
+(script static void end_segment
+    (begin
+        (camera_control true)
+        (cinematic_skip_start_internal)
+        (cinematic_stop 0.0 0.0 0.0 15)
+        (sleep 30)
+        (print "end gameplay segment!  thank you for playing!")
+        (sleep 15)
+        (print "grab jaime or paul to give feedback!")
+        (player_action_test_primary_trigger)
+        (sleep 15)
+        (print "press the “a” button to reset!")
+        (sleep_until (player_action_test_look_relative_up))
+        (print "reloading map...")
+        (sleep 15)
+        (switch_bsp_by_name)
+    )
+)
+
+(script static boolean difficulty_legendary
+    (begin
+        (= (pvs_set_object) legendary)
+    )
+)
+
+(script static boolean difficulty_heroic
+    (begin
+        (= (pvs_set_object) heroic)
+    )
+)
+
+(script static boolean difficulty_normal
+    (begin
+        (= (pvs_set_object) normal)
+    )
+)
+
+(script static boolean cinematic_skip_start
+    (begin
+        (cinematic_show_letterbox)
+        (cinematic_enable_ambience_details)
+        (sleep_until (not (sound_set_tag_parameter_unsafe)) 1)
+        (not (sound_impulse_predict))
+    )
+)
+
+(script static void cinematic_skip_stop
+    (begin
+        (cinematic_show_letterbox_immediate)
+        (if (not (sound_impulse_predict)) 
+            (game_is_playtest))
+    )
+)
+
+(script static void cinematic_fade_to_white
+    (begin
+        (player_flashlight_on false)
+        (player_action_test_jump false)
+        (show_hud_help_text 0.0 0.5)
+        (cinematic_skip_start_internal)
+        (cinematic_stop 1.0 1.0 1.0 30)
+        (sleep 30)
+        (camera_control true)
+    )
+)
+
+(script static void cinematic_fade_from_white
+    (begin
+        (show_hud_help_text 1.0 0.5)
+        (cinematic_skip_stop_internal)
+        (camera_control false)
+        (cinematic_start 1.0 1.0 1.0 15)
+        (sleep 15)
+        (player_flashlight_on true)
+        (player_action_test_jump true)
+    )
+)
+
+(script static void cinematic_fade_from_white_bars
+    (begin
+        (cinematic_skip_stop_internal)
+        (cinematic_set_title_delayed true)
+        (camera_control false)
+        (cinematic_start 1.0 1.0 1.0 15)
+        (sleep 15)
+        (player_flashlight_on true)
+        (player_action_test_jump true)
+    )
+)
+
+(script static void cinematic_fade_from_black_bars
+    (begin
+        (cinematic_skip_stop_internal)
+        (cinematic_set_title_delayed true)
+        (camera_control false)
+        (cinematic_start 0.0 0.0 0.0 15)
+        (sleep 15)
+        (player_flashlight_on true)
+        (player_action_test_jump true)
+    )
+)
+
+(script static void cinematic_fade_to_black
+    (begin
+        (player_flashlight_on false)
+        (player_action_test_jump false)
+        (show_hud_help_text 0.0 0.5)
+        (cinematic_skip_start_internal)
+        (cinematic_stop 0.0 0.0 0.0 30)
+        (sleep 30)
+        (camera_control true)
+    )
+)
+
+(script static void cinematic_fade_from_black
+    (begin
+        (show_hud_help_text 1.0 0.5)
+        (cinematic_skip_stop_internal)
+        (camera_control false)
+        (cinematic_start 0.0 0.0 0.0 15)
+        (sleep 15)
+        (player_flashlight_on true)
+        (player_action_test_jump true)
+    )
+)
+
+(script static void cinematic_snap_to_black
+    (begin
+        (player_flashlight_on false)
+        (player_action_test_jump false)
+        (cinematic_stop 0.0 0.0 0.0 0)
+        (show_hud_help_text 0.0 0.0)
+        (cinematic_skip_start_internal)
+        (cinematic_set_title_delayed true)
+        (camera_control true)
+    )
+)
+
+(script static void cinematic_snap_to_white
+    (begin
+        (player_flashlight_on false)
+        (player_action_test_jump false)
+        (cinematic_stop 1.0 1.0 1.0 0)
+        (show_hud_help_text 0.0 0.0)
+        (cinematic_skip_start_internal)
+        (cinematic_set_title_delayed true)
+        (camera_control true)
+    )
+)
+
+(script static void cinematic_stash_players
+    (begin
+        (object_hide (player0) true)
+        (object_hide (player1) true)
+        (object_cannot_take_damage (players))
+    )
+)
+
+(script static void cinematic_unstash_players
+    (begin
+        (object_hide (player0) false)
+        (object_hide (player1) false)
+        (object_can_take_damage (players))
+    )
+)
+
+(script dormant void _stealth_toggle_monitor
+    (begin
+        (sleep_until 
+            (begin
+                (sleep_until 
+                    (if 
+                        (and
+                            (>= (unit_get_shield (player0)) 1.0)
+                            (player_action_test_rotate_weapons)
+                        ) 
+                            (= 1.0 1.0) (begin
+                                (player_action_test_primary_trigger)
+                                (= 1.0 0.0)
+                            )
+                    ) 
+                1)
+                (cheat_active_camouflage_by_player 0 true)
+                (print "stealth engaged")
+                (unit_set_maximum_vitality (player0) 50.0 0.0)
+                (unit_set_current_vitality (player0) 50.0 0.0)
+                (object_set_shield (player0) 0.0)
+                (sleep 30)
+                (player_action_test_primary_trigger)
+                (sleep_until 
+                    (or
+                        (< (object_get_health (player0)) 1.0)
+                        (player_action_test_rotate_weapons)
+                    ) 
+                1)
+                (cheat_active_camouflage_by_player 0 false)
+                (print "stealth disengaged")
+                (unit_set_maximum_vitality (player0) 30.0 70.0)
+                (object_set_shield (player0) 0.0)
+                (sleep 30)
+                (player_action_test_primary_trigger)
+                false
+            ) 
+        1)
+    )
+)
+
+(script dormant void _stealth_timer_monitor
+    (begin
+        (sleep_until 
+            (begin
+                (sleep_until 
+                    (if (player_action_test_rotate_weapons) 
+                        (= 1.0 1.0) (begin
+                            (player_action_test_primary_trigger)
+                            (= 1.0 0.0)
+                        )
+                    ) 
+                1)
+                (cheat_active_camouflage_by_player 0 true)
+                (print "stealth engaged")
+                (sleep 15)
+                (player_action_test_primary_trigger)
+                (sleep_until 
+                    (or
+                        (player_action_test_rotate_weapons)
+                        (player_action_test_vision_trigger)
+                        (player_action_test_zoom)
+                        (player_action_test_accept)
+                    ) 
+                1 (* 9.0 30.0))
+                (cheat_active_camouflage_by_player 0 false)
+                (print "stealth disengaged")
+                (sleep 30)
+                (player_action_test_primary_trigger)
+                (sleep_until 
+                    (begin
+                        (print "+")
+                        false
+                    ) 
+                30 (* 5.0 30.0))
+                false
+            ) 
+        1)
+    )
+)
+
+(script static void activate_stealth_toggle_monitor
+    (begin
+        (sleep 1)
+    )
+)
+
+(script static void activate_stealth_timer_monitor
+    (begin
+        (sleep 1)
+    )
+)
+
+(script static void playtest_mission
+    (begin
+        (if (game_save_and_quit) 
+            (begin
+                (sleep 30)
+                (player_training_activate_flashlight "playtest_raisehand")
+                (hud_enable_training true)
+                (player_action_test_primary_trigger)
+                (sleep_until (player_action_test_look_relative_up) 1)
+                (hud_enable_training false)
+                (sleep 30)
+            )
+        )
+    )
+)
+
+(script dormant void x01_01_predict
+    (begin
+        (sleep 1)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 45 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 33 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 9 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 42 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 34 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 12 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 29 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 3 true)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\pedestal\pedestal" 0)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_small_door\high_small_door" 0)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\hc_introcine_love\hc_cin_volume\hc_cin_volume" 0)
+        (predict_lightmap_bucket "scenarios\objects\cinematics\cinematic_anchor\cinematic_anchor" 0)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 0)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 1)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 2)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 3)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 4)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 5)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 6)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 7)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 16)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 17)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 18)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 19)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 1 true)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\interior_objects\cov_chubby\cov_chubby" 0)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 false)
+        (sleep 3)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 27 false)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\high_charity_stardust\high_charity_stardust" 0)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\halo_destroyed_02\halo_destroyed_02" 0)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\halo_destroyed_01\halo_destroyed_01" 0)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\threshold_space\threshold_space" 0)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\high_charity_exterior\high_charity_exterior" 0)
+        (predict_lightmap_bucket "scenarios\objects\covenant\military\battle_cruiser\battle_cruiser" 0)
+        (predict_lightmap_bucket "scenarios\objects\covenant\military\capital_ship\capital_ship" 2)
+        (predict_lightmap_bucket "scenarios\objects\special\null_up\null_up" 0)
+        (predict_lightmap_bucket "scenarios\skies\generic\space\space" 0)
+        (sleep 216)
+        (predict_lightmap_bucket "scenarios\objects\cinematics\cinematic_anchor\cinematic_anchor" 0)
+    )
+)
+
+(script dormant void x01_01b_predict
+    (begin
+        (sleep 2)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 1 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 2 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 6 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 7 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 8 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 9 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 10 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 11 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 13 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 12 true)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\interior_objects\cov_chubby\cov_chubby" 0)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_door_grand\high_door_grand" 0)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_door\high_door" 0)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\hc_introcine_love\hc_cin_volume\hc_cin_volume" 0)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 0)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 1)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 2)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 3)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 4)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 5)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 6)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 7)
+        (sleep 5)
+        (predict_lightmap_bucket "objects\vehicles\banshee\banshee" 102)
+        (predict_lightmap_bucket "objects\vehicles\banshee\banshee" 103)
+        (predict_lightmap_bucket "objects\vehicles\banshee\banshee" 104)
+        (predict_lightmap_bucket "objects\vehicles\banshee\banshee" 105)
+        (predict_lightmap_bucket "objects\vehicles\banshee\banshee" 106)
+        (predict_lightmap_bucket "objects\vehicles\banshee\banshee" 107)
+        (predict_lightmap_bucket "objects\vehicles\banshee\banshee" 108)
+        (predict_lightmap_bucket "objects\vehicles\banshee\banshee" 109)
+        (sleep 32)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 0 true)
+    )
+)
+
+(script dormant void x01_02_predict
+    (begin
+        (sleep 2)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 10 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 37 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 16 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 41 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 17 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 43 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 33 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 46 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 31 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 34 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 25 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 29 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 26 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 3 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 5 true)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_door\high_door" 1)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 2 true)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 2)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 3)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 4)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 5)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 6)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 7)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 10)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 8)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 9)
+        (sleep 5)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 25)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 30)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 27)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 32)
+        (sleep 12)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 45 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 1 true)
+        (sleep 20)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 39 false)
+        (sleep 1)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 12 false)
+        (sleep 4)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_small_door\high_small_door" 0)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 42 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 11 false)
+        (sleep 1)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 9 false)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\pedestal\pedestal" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 8)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 9)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 7)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 3)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 1)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 3)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 4)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 0)
+        (sleep 1)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 42 false)
+        (sleep 39)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 26)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 29)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 35)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 36)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 37)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 33)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 34)
+        (sleep 2)
+        (predict_lightmap_bucket "objects\weapons\melee\gravity_hammer\gravity_hammer" 0)
+        (sleep 114)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 23 false)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet_councillor_prop\prophet_councillor_prop" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet_councillor_prop\prophet_councillor_prop" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 2)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 3)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 4)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 5)
+        (sleep 89)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 2)
+        (sleep 100)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 45 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 33 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 41 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 10 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 43 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 37 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 16 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 17 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 1 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 2 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 5 true)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 2)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 3)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 4)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 5)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_door\high_door" 1)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 0)
+    )
+)
+
+(script dormant void x01_03_predict
+    (begin
+        (sleep 2)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 27 false)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\reach_space\reach_space" 0)
+        (predict_lightmap_bucket "scenarios\objects\covenant\military\battle_cruiser\battle_cruiser" 0)
+        (predict_lightmap_bucket "objects\cinematics\human\pillarofautumn\pillarofautumn" 0)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\high_charity_stardust\high_charity_stardust" 0)
+        (predict_lightmap_bucket "scenarios\objects\forerunner\industrial\halo\halo" 0)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\halo_destroyed_02\halo_destroyed_02" 0)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\halo_destroyed_01\halo_destroyed_01" 0)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\threshold_space\threshold_space" 0)
+        (predict_lightmap_bucket "scenarios\skies\generic\space\space" 0)
+        (sleep 151)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\high_charity_exterior\high_charity_exterior" 0)
+    )
+)
+
+(script dormant void x01_04_predict
+    (begin
+        (print "next scene has no prediction...yet")
+    )
+)
+
+(script dormant void x01_05_predict
+    (begin
+        (sleep 2)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 9 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 34 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 3 true)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\pedestal\pedestal" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 8)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 9)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 7)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 3)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 1)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 3)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 4)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 2)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 3)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 4)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 5)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 6)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 7)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 10)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 8)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 9)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\hc_introcine_love\hc_cin_volume\hc_cin_volume" 0)
+        (predict_lightmap_bucket "scenarios\objects\cinematics\cinematic_anchor\cinematic_anchor" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 25)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 30)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 27)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 32)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\interior_objects\cov_chubby\cov_chubby" 0)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 0)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 1)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 2)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 3)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 4)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 5)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 6)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 7)
+        (sleep 60)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 33 false)
+    )
+)
+
+(script dormant void x01_06_predict
+    (begin
+        (sleep 3)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 45 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 1 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 2 true)
+        (predict_lightmap_bucket "objects\weapons\melee\gravity_hammer\gravity_hammer" 0)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_small_door\high_small_door" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 2)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 3)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 4)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 5)
+        (sleep 25)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 11 false)
+        (sleep 93)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 41 false)
+        (sleep 1)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 33 false)
+        (sleep 1)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 39 false)
+        (sleep 5)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 34 false)
+        (sleep 87)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\pedestal\pedestal" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 1)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 3)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 4)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 3)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 2)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 11)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 12)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 10)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 3 true)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 8)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 9)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 7)
+        (sleep 110)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 1)
+        (sleep 43)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 2)
+    )
+)
+
+(script dormant void x01_07_predict
+    (begin
+        (sleep 2)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 27 false)
+        (predict_lightmap_bucket "scenarios\skies\generic\space\space" 0)
+        (sleep 5)
+        (predict_lightmap_bucket "scenarios\objects\forerunner\industrial\halo_exploding\halo_exploding" 0)
+    )
+)
+
+(script dormant void x01_08_predict
+    (begin
+        (sleep 3)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 41 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 45 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 33 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 42 false)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_small_door\high_small_door" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet_councillor_prop\prophet_councillor_prop" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet_councillor_prop\prophet_councillor_prop" 1)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\hc_introcine_love\hc_cin_volume\hc_cin_volume" 0)
+        (predict_lightmap_bucket "scenarios\objects\cinematics\cinematic_anchor\cinematic_anchor" 0)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 8)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 9)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 10)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 11)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 1 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 2 true)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 25)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 30)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 27)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 32)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\interior_objects\cov_chubby\cov_chubby" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 2)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 3)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 4)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 5)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 6)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 7)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 10)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 8)
+        (predict_lightmap_bucket "objects\characters\elite\elite_honor_guard\elite_honor_guard" 9)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 0)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 1)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 2)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 3)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 4)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 5)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 6)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 7)
+        (sleep 4)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 5)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 6)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 4)
+        (sleep 75)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 11 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 39 false)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 31)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 2)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 3)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 4)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 5)
+        (sleep 80)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 9 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 34 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 3 true)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 26)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 29)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 35)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 36)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 37)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 33)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 34)
+        (predict_lightmap_bucket "objects\weapons\melee\gravity_hammer\gravity_hammer" 0)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\pedestal\pedestal" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 8)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 9)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 7)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 3)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 1)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 3)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 4)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 11)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 12)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 10)
+        (sleep 118)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 1)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 2)
+        (sleep 412)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 45 false)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 0)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 1 true)
+        (sleep 111)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 41 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 10 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 22 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 37 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 40 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 16 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 2 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 5 true)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_small_door\high_small_door" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite" 31)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 2)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 3)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 4)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 5)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_door\high_door" 0)
+    )
+)
+
+(script dormant void x01_09_predict
+    (begin
+        (sleep 4)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 33 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 9 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 11 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 34 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 23 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 39 false)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 5)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 6)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 4)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet_councillor_prop\prophet_councillor_prop" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet_councillor_prop\prophet_councillor_prop" 1)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 26)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 29)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 35)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 36)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 37)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 33)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 34)
+        (predict_lightmap_bucket "objects\weapons\melee\gravity_hammer\gravity_hammer" 0)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\pedestal\pedestal" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 8)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 9)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 7)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 3)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 1)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 3)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 11)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 12)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 10)
+        (sleep 77)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 41 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 10 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 22 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 43 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 37 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 40 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 16 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 17 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 5 true)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_door\high_door" 0)
+        (sleep 13)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 31 false)
+        (sleep 41)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 11 false)
+        (sleep 2)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 11 false)
+        (sleep 1)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 34 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 39 false)
+        (sleep 4)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 9 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 29 false)
+        (sleep 5)
+        (predict_lightmap_bucket "objects\weapons\melee\gravity_hammer\gravity_hammer" 0)
+        (sleep 1)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 3 true)
+        (sleep 3)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 26)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 29)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 35)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 36)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 37)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 33)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 34)
+        (sleep 11)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\pedestal\pedestal" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 8)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 9)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 7)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 3)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 1)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 3)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 4)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 11)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 12)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 10)
+        (sleep 92)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 33 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 41 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 10 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 22 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 43 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 37 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 40 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 46 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 16 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 17 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 5 true)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_small_door\high_small_door" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 2)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 3)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 4)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 5)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_door\high_door" 0)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 2 true)
+        (sleep 122)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 9 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 34 false)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\pedestal\pedestal" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 1)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 3)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 4)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 3)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 2)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 11)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 12)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 10)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 8)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 9)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 7)
+        (sleep 68)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 45 false)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 26)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 29)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 35)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 36)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 37)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 33)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 34)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 1)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 0)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 1 true)
+    )
+)
+
+(script dormant void x01_10_predict
+    (begin
+        (sleep 3)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 41 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 10 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 37 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 16 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 2 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 true)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 5 true)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 28)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 40)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_small_door\high_small_door" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 0)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 1)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 2)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 3)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 4)
+        (predict_lightmap_bucket "objects\characters\elite\elite_councillor_prop\elite_councillor_prop" 5)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\high_door\high_door" 0)
+        (sleep 123)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 46 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 43 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 31 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 33 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 34 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 39 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 9 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 11 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 23 false)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 35)
+        (predict_lightmap_bucket "objects\characters\brute\brute" 34)
+        (predict_lightmap_bucket "objects\weapons\melee\gravity_hammer\gravity_hammer" 0)
+        (predict_lightmap_bucket "scenarios\objects\solo\highcharity\pedestal\pedestal" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet_councillor_prop\prophet_councillor_prop" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet_councillor_prop\prophet_councillor_prop" 1)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 8)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 9)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 7)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 3)
+        (predict_lightmap_bucket "objects\vehicles\gravity_throne\gravity_throne" 2)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 0)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 1)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 3)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 4)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 1)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 11)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 12)
+        (predict_lightmap_bucket "objects\characters\prophet\prophet" 10)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 0)
+        (sleep 12)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 29 false)
+        (sleep 89)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 0)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 1)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 2)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 3)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 4)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 5)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 6)
+        (predict_lightmap_bucket "scenarios\skies\solo\highcharity\highcharity" 7)
+        (sleep 13)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 4 false)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 2 true)
+        (sleep 75)
+        (predict_lightmap_bucket "objects\weapons\rifle\smg\smg" 2)
+    )
+)
+
+(script dormant void 01_intro_01_predict
+    (begin
+        (sleep 2)
+        (predict_bitmap scenarios\solo\07a_highcharity\high_0 27 false)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\moon\moon" 0)
+        (predict_lightmap_bucket "objects\cinematics\matte_paintings\earth_space\earth_space" 0)
+        (predict_lightmap_bucket "objects\cinematics\human\inamberclad\inamberclad" 0)
+        (predict_lightmap_bucket "scenarios\skies\generic\space\space" 0)
+        (sleep 5)
+        (predict_lightmap_bucket "objects\vehicles\longsword\longsword" 1)
+        (predict_lightmap_bucket "scenarios\objects\solo\spacestation\ss_prop\ss_prop" 0)
+        (predict_lightmap_bucket "objects\cinematics\human\cairo\cairo" 0)
+        (sleep 146)
+        (predict_lightmap_bucket "objects\cinematics\human\pillarofautumn\pillarofautumn" 0)
+        (sleep 1)
+        (predict_lightmap_bucket "scenarios\objects\special\null_up\null_up" 0)
+    )
+)
+
+(script dormant void 01_intro_02_predict
+    (begin
+        (sleep 3)
+        (predict_lightmap_bucket "objects\characters\marine\marine" 53)
+        (predict_lightmap_bucket "objects\characters\marine\marine" 71)
+        (predict_lightmap_bucket "objects\characters\marine\marine" 6)
+        (predict_lightmap_bucket "objects\characters\marine\marine" 58)
+        (predict_lightmap_bucket "objects\cinematics\human\power_core\power_core" 0)
+        (predict_lightmap_bucket "objects\cinematics\human\optics\optics" 0)
+        (predict_lightmap_bucket "objects\cinematics\human\equipment_cart\equipment_cart" 0)
+        (predict_lightmap_bucket "objects\cinematics\human\cairo_armory\cairo_armory" 0)
+        (predict_lightmap_bucket "scenarios\objects\cinematics\cinematic_anchor\cinematic_anchor" 0)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 16)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 17)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 18)
+        (predict_lightmap_bucket "objects\characters\masterchief\masterchief" 19)
+        (predict_lightmap_bucket "objects\characters\masterchief\helmet\helmet" 0)
+    )
+)
+
+(script static void x01_01_predict_stub
+    (begin
+        (wake x01_01_predict)
+    )
+)
+
+(script static void x01_01b_predict_stub
+    (begin
+        (wake x01_01b_predict)
+    )
+)
+
+(script static void x01_02_predict_stub
+    (begin
+        (wake x01_02_predict)
+    )
+)
+
+(script static void x01_03_predict_stub
+    (begin
+        (wake x01_03_predict)
+    )
+)
+
+(script static void x01_04_predict_stub
+    (begin
+        (wake x01_04_predict)
+    )
+)
+
+(script static void x01_05_predict_stub
+    (begin
+        (wake x01_05_predict)
+    )
+)
+
+(script static void x01_06_predict_stub
+    (begin
+        (wake x01_06_predict)
+    )
+)
+
+(script static void x01_07_predict_stub
+    (begin
+        (wake x01_07_predict)
+    )
+)
+
+(script static void x01_08_predict_stub
+    (begin
+        (wake x01_08_predict)
+    )
+)
+
+(script static void x01_09_predict_stub
+    (begin
+        (wake x01_09_predict)
+    )
+)
+
+(script static void x01_10_predict_stub
+    (begin
+        (wake x01_10_predict)
+    )
+)
+
+(script static void 01_intro_01_predict_stub
+    (begin
+        (wake 01_intro_01_predict)
+    )
+)
+
+(script static void 01_intro_02_predict_stub
+    (begin
+        (wake 01_intro_02_predict)
+    )
+)
+
+(script dormant void x01_score_01a
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\cinematics\01_spacestation\x01\music\x01_01_mus" none 1.0)
+        (print "x01 score 01 start")
+    )
+)
+
+(script dormant void x01_foley_01a
+    (begin
+        (sleep 60)
+        (sound_impulse_start_effect "sound\cinematics\01_spacestation\x01\foley\x01_01a_fol" none 1.0)
+        (print "x01 foley 01 start")
+    )
+)
+
+(script dormant void x01_supratitle_01
+    (begin
+        (sleep 420)
+        (cinematic_suppress_bsp_object_creation "cinematic_title0")
+    )
+)
+
+(script dormant void cinematic_lighting_scene_01a
+    (begin
+        (cinematic_lighting_set_primary_light -23.0 152.0 0.576471 0.513726 0.4)
+        (cinematic_lighting_set_secondary_light 38.0 222.0 0.141176 0.141176 0.290196)
+        (cinematic_lighting_set_ambient_light 0.0 0.0 0.0)
+        (rasterizer_bloom_override_blur_amount true)
+        (rasterizer_bloom_override_box_factor 0.6)
+        (rasterizer_bloom_override_max_factor 0.5)
+        (object_uses_cinematic_lighting "carrier_01" true)
+        (object_uses_cinematic_lighting "cruiser_01" true)
+        (object_uses_cinematic_lighting "cruiser_02" true)
+        (object_uses_cinematic_lighting "cruiser_03" true)
+        (object_uses_cinematic_lighting "cruiser_04" true)
+        (object_uses_cinematic_lighting "cruiser_05" true)
+    )
+)
+
+(script static void x01_01b_problem_actors
+    (begin
+        (print "problem actors")
+        (object_create_anew_containing "banshee")
+        (object_cinematic_lod "banshee_01" true)
+        (object_cinematic_lod "banshee_02" true)
+        (object_cinematic_lod "banshee_03" true)
+        (object_cinematic_lod "banshee_04" true)
+        (object_cinematic_lod "banshee_05" true)
+        (object_cinematic_lod "banshee_06" true)
+        (object_cinematic_lod "banshee_07" true)
+        (object_cinematic_lod "banshee_08" true)
+        (object_cinematic_lod "banshee_09" true)
+        (object_cinematic_lod "banshee_10" true)
+    )
+)
+
+(script static void x01_01a_setup
+    (begin
+        (object_create_anew "x01_fleet")
+        (object_create_anew "carrier_01")
+        (object_create_anew_containing "cruiser")
+        (object_create_anew "matte_high_charity")
+        (object_create_anew "matte_threshold")
+        (object_create_anew "matte_halo_01")
+        (object_create_anew "matte_halo_02")
+        (object_create_anew "matte_stardust_01")
+        (object_create_anew "matte_stardust_02")
+        (object_cinematic_lod "carrier_01" true)
+        (object_cinematic_lod "cruiser_01" true)
+        (object_cinematic_lod "cruiser_02" true)
+        (object_cinematic_lod "cruiser_03" true)
+        (object_cinematic_lod "cruiser_04" true)
+        (object_cinematic_lod "cruiser_05" true)
+        (wake x01_score_01a)
+        (wake x01_foley_01a)
+        (wake x01_supratitle_01)
+        (wake cinematic_lighting_scene_01a)
+    )
+)
+
+(script static void x01_scene_01a
+    (begin
+        (sound_class_enable_ducker "amb" 0.0 0)
+        (cinematic_stop 0.0 0.0 0.0 0)
+        (camera_control true)
+        (set_pjl_effect "introduction")
+        (cinematic_skip_start_internal)
+        (set_rasterizer_gamma)
+        (set cinematic_letterbox_style 1)
+        (camera_pan 60.0 0)
+        (x01_01_predict_stub)
+        (sound_impulse_start "sound\cinematics\01_spacestation\x01\foley\x01_01a_fol")
+        (sound_impulse_start "sound\cinematics\01_spacestation\x01\music\x01_01_mus")
+        (sleep prediction_offset)
+        (sleep 45)
+        (x01_01a_setup)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\x01\x01" "x01_01" none "anchor_flag_x01a")
+        (cinematic_start 0.0 0.0 0.0 90)
+        (scenery_animation_start_relative "carrier_01" "scenarios\objects\covenant\military\capital_ship\x01\x01" "01_capital_ship_01" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_01" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "01_ship01" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_02" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "01_ship02" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_03" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "01_ship03" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_04" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "01_ship04" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_05" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "01_ship05" "anchor_x01a")
+        (scenery_animation_start_relative "matte_high_charity" "objects\cinematics\matte_paintings\high_charity_exterior\x01\x01" "high_charity_01" "anchor_x01a")
+        (scenery_animation_start_relative "matte_threshold" "objects\cinematics\matte_paintings\threshold_space\x01\x01" "threshold_space_01" "anchor_x01a")
+        (scenery_animation_start_relative "matte_halo_01" "objects\cinematics\matte_paintings\halo_destroyed_01\x01\x01" "halo_destroyed01_01" "anchor_x01a")
+        (scenery_animation_start_relative "matte_halo_02" "objects\cinematics\matte_paintings\halo_destroyed_02\x01\x01" "halo_destroyed02_01" "anchor_x01a")
+        (scenery_animation_start_relative "matte_stardust_01" "objects\cinematics\matte_paintings\high_charity_stardust\x01\x01" "stardust01_01" "anchor_x01a")
+        (scenery_animation_start_relative "matte_stardust_02" "objects\cinematics\matte_paintings\high_charity_stardust\x01\x01" "stardust02_01" "anchor_x01a")
+        (cinematic_screen_effect_set_crossfade true)
+        (sleep (- (camera_set_pan) prediction_offset))
+        (x01_01b_predict_stub)
+        (x01_01b_problem_actors)
+        (sleep (- (camera_set_pan) sound_offset))
+        (sound_impulse_start "sound\cinematics\01_spacestation\x01\foley\x01_01b_fol")
+        (sleep (- (camera_set_pan) 1.0))
+        (cinematic_screen_effect_stop 2.0)
+        (sleep 1)
+    )
+)
+
+(script dormant void x01_foley_01b
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\cinematics\01_spacestation\x01\foley\x01_01b_fol" none 1.0)
+        (print "x01 foley 01b start")
+    )
+)
+
+(script dormant void x01_0010_der
+    (begin
+        (sleep 203)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0010_der" none 1.0)
+        (attract_mode_set_seconds "x01_0010_der" 1.0)
+    )
+)
+
+(script dormant void banshee_audio
+    (begin
+        (sound_class_enable_ducker "vehicle_engine" 0.0 0)
+        (sound_class_enable_ducker "vehicle_engine" 1.0 120)
+    )
+)
+
+(script dormant void banshee_hotness
+    (begin
+        (object_set_function_variable "banshee_01" "engine_audio" 1.0 1.0)
+        (object_set_function_variable "banshee_02" "engine_audio" 1.0 1.0)
+        (object_set_function_variable "banshee_03" "engine_audio" 1.0 1.0)
+        (object_set_function_variable "banshee_04" "engine_audio" 1.0 1.0)
+        (object_set_function_variable "banshee_05" "engine_audio" 1.0 1.0)
+        (object_set_function_variable "banshee_06" "engine_audio" 1.0 1.0)
+        (object_set_function_variable "banshee_07" "engine_audio" 1.0 1.0)
+        (object_set_function_variable "banshee_08" "engine_audio" 1.0 1.0)
+        (object_set_function_variable "banshee_09" "engine_audio" 1.0 1.0)
+        (object_set_function_variable "banshee_10" "engine_audio" 1.0 1.0)
+        (sleep 30)
+        (object_set_function_variable "banshee_06" "wingtips" 1.0 1.0)
+        (object_set_function_variable "banshee_07" "wingtips" 1.0 1.0)
+        (print "contrails start")
+        (sleep 150)
+        (object_clear_function_variable "banshee_06" "wingtips")
+        (object_clear_function_variable "banshee_07" "wingtips")
+        (print "contrails stop")
+    )
+)
+
+(script dormant void cinematic_lighting_scene_01b
+    (begin
+        (cinematic_lighting_set_primary_light -59.0 308.0 0.466667 0.517647 0.643137)
+        (cinematic_lighting_set_secondary_light -5.0 360.0 0.270588 0.313726 0.380392)
+        (cinematic_lighting_set_ambient_light 0.00784314 0.00784314 0.00784314)
+        (rasterizer_bloom_override_box_factor 0.3)
+        (rasterizer_bloom_override_max_factor 0.5)
+        (object_uses_cinematic_lighting "banshee_01" true)
+        (object_uses_cinematic_lighting "banshee_02" true)
+        (object_uses_cinematic_lighting "banshee_03" true)
+        (object_uses_cinematic_lighting "banshee_04" true)
+        (object_uses_cinematic_lighting "banshee_05" true)
+        (object_uses_cinematic_lighting "banshee_06" true)
+        (object_uses_cinematic_lighting "banshee_07" true)
+        (object_uses_cinematic_lighting "banshee_08" true)
+        (object_uses_cinematic_lighting "banshee_09" true)
+        (object_uses_cinematic_lighting "banshee_10" true)
+    )
+)
+
+(script static void x01_01b_setup
+    (begin
+        (object_destroy "x01_fleet")
+        (object_create_anew "mercy")
+        (object_create_anew "regret")
+        (object_create_anew "throne_mercy")
+        (object_create_anew "throne_regret")
+        (objects_attach "mercy" "" "throne_mercy" "driver_cinematic")
+        (objects_attach "regret" "" "throne_regret" "driver_cinematic")
+        (object_create_anew_containing "matte")
+        (object_destroy_containing "carrier")
+        (object_destroy "x01_fleet")
+        (wake x01_foley_01b)
+        (wake x01_0010_der)
+        (wake banshee_audio)
+        (wake banshee_hotness)
+        (wake cinematic_lighting_scene_01b)
+    )
+)
+
+(script static void x01_scene_01b
+    (begin
+        (sound_class_enable_ducker "amb" 1.0 1)
+        (print "x01 scene 01b start")
+        (x01_01b_setup)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\x01\x01" "x01_01b" none "anchor_flag_x01b")
+        (custom_animation_relative "banshee_01" "objects\vehicles\banshee\x01\x01" "banshee01_01b" false "anchor_x01b")
+        (custom_animation_relative "banshee_02" "objects\vehicles\banshee\x01\x01" "banshee02_01b" false "anchor_x01b")
+        (custom_animation_relative "banshee_03" "objects\vehicles\banshee\x01\x01" "banshee03_01b" false "anchor_x01b")
+        (custom_animation_relative "banshee_04" "objects\vehicles\banshee\x01\x01" "banshee04_01b" false "anchor_x01b")
+        (custom_animation_relative "banshee_05" "objects\vehicles\banshee\x01\x01" "banshee05_01b" false "anchor_x01b")
+        (custom_animation_relative "banshee_06" "objects\vehicles\banshee\x01\x01" "banshee06_01b" false "anchor_x01b")
+        (custom_animation_relative "banshee_07" "objects\vehicles\banshee\x01\x01" "banshee07_01b" false "anchor_x01b")
+        (custom_animation_relative "banshee_08" "objects\vehicles\banshee\x01\x01" "banshee08_01b" false "anchor_x01b")
+        (custom_animation_relative "banshee_09" "objects\vehicles\banshee\x01\x01" "banshee09_01b" false "anchor_x01b")
+        (custom_animation_relative "banshee_10" "objects\vehicles\banshee\x01\x01" "banshee10_01b" false "anchor_x01b")
+        (sleep (- (camera_set_pan) prediction_offset))
+        (x01_02_predict_stub)
+        (sleep (- (camera_set_pan) sound_offset))
+        (sound_impulse_start "sound\cinematics\01_spacestation\x01\foley\x01_02_fol")
+        (sleep (- (camera_set_pan) 1.0))
+        (cinematic_screen_effect_stop 1.0)
+        (sleep 1)
+    )
+)
+
+(script dormant void x01_foley_02
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\cinematics\01_spacestation\x01\foley\x01_02_fol" none 1.0)
+        (print "x01 foley 02 start")
+    )
+)
+
+(script dormant void x01_0020_pot
+    (begin
+        (sleep 19)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0020_pot" "truth" 1.0)
+        (attract_mode_set_seconds "x01_0020_pot" 3.0)
+    )
+)
+
+(script dormant void x01_0030_der
+    (begin
+        (sleep 100)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0030_der" "dervish" 1.0)
+        (attract_mode_set_seconds "x01_0030_der" 3.0)
+    )
+)
+
+(script dormant void x01_0040_pcc
+    (begin
+        (sleep 170)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0040_pcc" none 1.0)
+        (attract_mode_set_seconds "x01_0040_pcc" 7.0)
+    )
+)
+
+(script dormant void x01_0050_pom
+    (begin
+        (sleep 289)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0050_pom" "mercy" 1.0)
+        (attract_mode_set_seconds "x01_0050_pom" 2.5)
+    )
+)
+
+(script dormant void x01_0060_der
+    (begin
+        (sleep 391)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0060_der" "dervish" 1.0)
+        (attract_mode_set_seconds "x01_0060_der" 2.0)
+    )
+)
+
+(script dormant void x01_02_fov
+    (begin
+        (sleep 196)
+        (camera_pan 80.0 0)
+        (print "fov change: 60 -> 80 over 0 ticks")
+        (sleep 90)
+        (camera_pan 47.0 0)
+        (print "fov change: 80 -> 47 over 0 ticks")
+    )
+)
+
+(script dormant void cinematic_lighting_scene_02
+    (begin
+        (cinematic_lighting_set_primary_light -90.0 116.0 0.258824 0.258824 0.317647)
+        (cinematic_lighting_set_secondary_light -26.0 148.0 0.254902 0.203922 0.270588)
+        (cinematic_lighting_set_ambient_light 0.00784314 0.00784314 0.00784314)
+        (render_lights_enable_cinematic_shadow true "dervish" "head" 0.4)
+        (rasterizer_bloom_override_box_factor 0.3)
+        (rasterizer_bloom_override_max_factor 0.5)
+        (object_uses_cinematic_lighting "dervish" true)
+        (object_uses_cinematic_lighting "mercy" true)
+        (object_uses_cinematic_lighting "regret" true)
+        (object_uses_cinematic_lighting "tartarus" true)
+        (object_uses_cinematic_lighting "prophet_counc_01" true)
+        (object_uses_cinematic_lighting "prophet_counc_02" true)
+        (object_uses_cinematic_lighting "prophet_counc_03" true)
+        (object_uses_cinematic_lighting "prophet_counc_04" true)
+        (object_uses_cinematic_lighting "ehg_01" true)
+        (object_uses_cinematic_lighting "ehg_02" true)
+        (object_uses_cinematic_lighting "ehg_03" true)
+        (object_uses_cinematic_lighting "ehg_04" true)
+        (object_uses_cinematic_lighting "ehg_05" true)
+        (object_uses_cinematic_lighting "ehg_06" true)
+        (object_uses_cinematic_lighting "ehg_07" true)
+        (object_uses_cinematic_lighting "ehg_08" true)
+        (object_uses_cinematic_lighting "ehg_09" true)
+        (object_uses_cinematic_lighting "ehg_10" true)
+        (object_uses_cinematic_lighting "ehg_11" true)
+        (object_uses_cinematic_lighting "ehg_12" true)
+        (object_uses_cinematic_lighting "throne_mercy" true)
+        (object_uses_cinematic_lighting "throne_regret" true)
+        (object_uses_cinematic_lighting "hammer" true)
+    )
+)
+
+(script static void x01_03_problem_actors
+    (begin
+        (print "problem actors")
+        (object_create_anew "poa_01")
+        (object_create_anew_containing "cruiser")
+        (object_create_anew "matte_reach")
+        (object_cinematic_lod "poa_01" true)
+        (object_cinematic_lod "cruiser_01" true)
+        (object_cinematic_lod "cruiser_02" true)
+        (object_cinematic_lod "cruiser_03" true)
+        (object_cinematic_lod "cruiser_04" true)
+        (object_cinematic_lod "cruiser_05" true)
+        (object_cinematic_lod "cruiser_06" true)
+        (object_cinematic_lod "cruiser_07" true)
+        (object_cinematic_lod "cruiser_08" true)
+        (object_cinematic_lod "cruiser_09" true)
+    )
+)
+
+(script dormant void create_councillors_01
+    (begin
+        (sleep 196)
+        (print "create councillors")
+        (object_create_anew_containing "elc")
+        (object_create_anew_containing "pcc")
+        (object_uses_cinematic_lighting "elc_01" true)
+        (object_uses_cinematic_lighting "elc_02" true)
+        (object_uses_cinematic_lighting "elc_03" true)
+        (object_uses_cinematic_lighting "elc_04" true)
+        (object_uses_cinematic_lighting "elc_05" true)
+        (object_uses_cinematic_lighting "elc_06" true)
+        (object_uses_cinematic_lighting "elc_07" true)
+        (object_uses_cinematic_lighting "elc_08" true)
+        (object_uses_cinematic_lighting "elc_09" true)
+        (object_uses_cinematic_lighting "elc_10" true)
+        (object_uses_cinematic_lighting "elc_11" true)
+        (object_uses_cinematic_lighting "elc_12" true)
+        (object_uses_cinematic_lighting "elc_13" true)
+        (object_uses_cinematic_lighting "elc_14" true)
+        (object_uses_cinematic_lighting "elc_15" true)
+        (object_uses_cinematic_lighting "elc_16" true)
+        (object_uses_cinematic_lighting "elc_17" true)
+        (object_uses_cinematic_lighting "elc_18" true)
+        (object_uses_cinematic_lighting "elc_19" true)
+        (object_uses_cinematic_lighting "elc_20" true)
+        (object_uses_cinematic_lighting "elc_21" true)
+        (object_uses_cinematic_lighting "elc_22" true)
+        (object_uses_cinematic_lighting "elc_23" true)
+        (object_uses_cinematic_lighting "elc_24" true)
+        (object_uses_cinematic_lighting "elc_25" true)
+        (object_uses_cinematic_lighting "elc_26" true)
+        (object_uses_cinematic_lighting "elc_27" true)
+        (object_uses_cinematic_lighting "elc_28" true)
+        (object_uses_cinematic_lighting "elc_29" true)
+        (object_uses_cinematic_lighting "elc_30" true)
+        (object_uses_cinematic_lighting "pcc_01" true)
+        (object_uses_cinematic_lighting "pcc_02" true)
+        (object_uses_cinematic_lighting "pcc_03" true)
+        (object_uses_cinematic_lighting "pcc_04" true)
+        (object_uses_cinematic_lighting "pcc_05" true)
+        (object_uses_cinematic_lighting "pcc_06" true)
+        (object_uses_cinematic_lighting "pcc_07" true)
+        (object_uses_cinematic_lighting "pcc_08" true)
+        (object_uses_cinematic_lighting "pcc_09" true)
+        (object_uses_cinematic_lighting "pcc_10" true)
+        (object_uses_cinematic_lighting "pcc_11" true)
+        (object_uses_cinematic_lighting "pcc_12" true)
+        (object_uses_cinematic_lighting "pcc_13" true)
+        (object_uses_cinematic_lighting "pcc_14" true)
+        (object_uses_cinematic_lighting "pcc_15" true)
+        (object_uses_cinematic_lighting "pcc_16" true)
+        (object_uses_cinematic_lighting "pcc_17" true)
+        (object_uses_cinematic_lighting "pcc_18" true)
+        (object_uses_cinematic_lighting "pcc_19" true)
+        (object_uses_cinematic_lighting "pcc_20" true)
+        (object_uses_cinematic_lighting "pcc_21" true)
+        (object_uses_cinematic_lighting "pcc_22" true)
+        (object_uses_cinematic_lighting "pcc_23" true)
+        (object_uses_cinematic_lighting "pcc_24" true)
+        (object_uses_cinematic_lighting "pcc_25" true)
+        (object_uses_cinematic_lighting "pcc_26" true)
+        (object_uses_cinematic_lighting "pcc_27" true)
+        (object_uses_cinematic_lighting "pcc_28" true)
+        (object_uses_cinematic_lighting "pcc_29" true)
+        (object_uses_cinematic_lighting "pcc_30" true)
+        (object_uses_cinematic_lighting "pcc_31" true)
+        (object_uses_cinematic_lighting "pcc_32" true)
+    )
+)
+
+(script static void x01_02_setup
+    (begin
+        (object_create_anew "dervish")
+        (object_create_anew "tartarus")
+        (object_create_anew_containing "ehg")
+        (object_create_anew "hammer")
+        (object_cinematic_lod "dervish" true)
+        (object_cinematic_lod "mercy" true)
+        (object_cinematic_lod "regret" true)
+        (object_cinematic_lod "tartarus" true)
+        (object_cinematic_lod "throne_mercy" true)
+        (object_cinematic_lod "throne_regret" true)
+        (object_cinematic_lod "hammer" true)
+        (object_set_function_variable "tartarus" "invincibility" 0.0 0.0)
+        (wake x01_foley_02)
+        (wake x01_0020_pot)
+        (wake x01_0030_der)
+        (wake x01_0040_pcc)
+        (wake x01_0050_pom)
+        (wake x01_0060_der)
+        (wake create_councillors_01)
+        (wake x01_02_fov)
+        (wake cinematic_lighting_scene_02)
+    )
+)
+
+(script static void x01_02_cleanup
+    (begin
+        (object_destroy "prophet_counc_03")
+        (object_destroy "prophet_counc_04")
+    )
+)
+
+(script static void x01_scene_02
+    (begin
+        (print "x01 scene 02 start")
+        (x01_02_setup)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\x01\x01" "x01_02" none "anchor_flag_x01b")
+        (custom_animation_relative "dervish" "objects\characters\dervish\x01\x01" "dervish_02" false "anchor_x01b")
+        (custom_animation_relative "mercy" "objects\characters\prophet\x01\x01" "mercy_02" false "anchor_x01b")
+        (custom_animation_relative "regret" "objects\characters\prophet\x01\x01" "regret_02" false "anchor_x01b")
+        (custom_animation_relative "tartarus" "objects\characters\brute\x01\x01" "tartarus_02" false "anchor_x01b")
+        (scenery_animation_start_relative "hammer" "objects\weapons\melee\gravity_hammer\x01\x01" "hammer_02" "anchor_x01b")
+        (sleep (- (camera_set_pan) prediction_offset))
+        (x01_03_predict_stub)
+        (x01_03_problem_actors)
+        (sleep (- (camera_set_pan) sound_offset))
+        (sound_impulse_start "sound\cinematics\01_spacestation\x01\foley\x01_03_fol")
+        (sleep (- (camera_set_pan) 15.0))
+        (cinematic_stop 1.0 1.0 1.0 15)
+        (sleep 15)
+        (x01_02_cleanup)
+    )
+)
+
+(script dormant void x01_foley_03
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\cinematics\01_spacestation\x01\foley\x01_03_fol" none 1.0)
+        (print "x01 foley 03 start")
+    )
+)
+
+(script dormant void x01_0070_der
+    (begin
+        (sleep 65)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0070_der" none 1.0)
+        (attract_mode_set_seconds "x01_0070_der" 2.0)
+    )
+)
+
+(script dormant void cinematic_lighting_scene_03
+    (begin
+        (cinematic_lighting_set_primary_light 69.0 232.0 0.290196 0.32549 0.243137)
+        (cinematic_lighting_set_secondary_light -2.0 76.0 0.129412 0.141176 0.270588)
+        (cinematic_lighting_set_ambient_light 0.0 0.0 0.0)
+        (rasterizer_bloom_override_box_factor 0.6)
+        (rasterizer_bloom_override_max_factor 0.5)
+        (object_uses_cinematic_lighting "poa_01" true)
+        (object_uses_cinematic_lighting "cruiser_01" true)
+        (object_uses_cinematic_lighting "cruiser_02" true)
+        (object_uses_cinematic_lighting "cruiser_03" true)
+        (object_uses_cinematic_lighting "cruiser_04" true)
+        (object_uses_cinematic_lighting "cruiser_05" true)
+        (object_uses_cinematic_lighting "cruiser_06" true)
+        (object_uses_cinematic_lighting "cruiser_07" true)
+        (object_uses_cinematic_lighting "cruiser_08" true)
+        (object_uses_cinematic_lighting "cruiser_09" true)
+        (object_uses_cinematic_lighting "cruiser_10" true)
+        (object_uses_cinematic_lighting "cruiser_11" true)
+        (object_uses_cinematic_lighting "cruiser_12" true)
+    )
+)
+
+(script static void x01_03_setup
+    (begin
+        (object_create "halo_whole")
+        (object_create_anew "matte_reach")
+        (object_create_anew "matte_stardust_01")
+        (wake x01_foley_03)
+        (wake x01_0070_der)
+        (wake cinematic_lighting_scene_03)
+    )
+)
+
+(script static void x01_scene_03
+    (begin
+        (sound_class_enable_ducker "amb" 0.0 1)
+        (x01_03_setup)
+        (camera_pan 60.0 0)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\x01\x01" "x01_03" none "anchor_flag_x01a")
+        (cinematic_start 1.0 1.0 1.0 15)
+        (scenery_animation_start_relative "poa_01" "objects\cinematics\human\pillarofautumn\x01\x01" "poa_03" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_01" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "03_ship01" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_02" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "03_ship02" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_03" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "03_ship03" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_04" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "03_ship04" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_05" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "03_ship05" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_06" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "03_ship06" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_07" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "03_ship07" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_08" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "03_ship08" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_09" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "03_ship09" "anchor_x01a")
+        (scenery_animation_start_relative "matte_reach" "objects\cinematics\matte_paintings\reach_space\x01\x01" "reach_space_03" "anchor_x01a")
+        (sleep (- (camera_set_pan) prediction_offset))
+        (x01_04_predict_stub)
+        (sleep (- (camera_set_pan) 1.0))
+        (cinematic_screen_effect_stop 2.0)
+        (sleep 1)
+    )
+)
+
+(script dormant void x01_0080_por
+    (begin
+        (sleep 12)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0080_por" none 1.0)
+        (attract_mode_set_seconds "x01_0080_por" 5.0)
+    )
+)
+
+(script dormant void x01_0090_der
+    (begin
+        (sleep 152)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0090_der" none 1.0)
+        (attract_mode_set_seconds "x01_0090_der" 1.0)
+    )
+)
+
+(script dormant void x01_0100_por
+    (begin
+        (sleep 180)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0100_por" none 1.0)
+        (attract_mode_set_seconds "x01_0100_por" 2.0)
+    )
+)
+
+(script dormant void x01_0110_der
+    (begin
+        (sleep 238)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0110_der" none 1.0)
+        (attract_mode_set_seconds "x01_0110_der" 1.0)
+    )
+)
+
+(script dormant void cinematic_lighting_scene_04
+    (begin
+        (cinematic_lighting_set_primary_light -42.0 60.0 0.4 0.380392 0.270588)
+        (cinematic_lighting_set_secondary_light 38.0 222.0 0.141176 0.141176 0.290196)
+        (cinematic_lighting_set_ambient_light 0.0 0.0 0.0)
+        (object_uses_cinematic_lighting "halo_whole" true)
+        (object_uses_cinematic_lighting "cruiser_10" true)
+        (object_uses_cinematic_lighting "cruiser_11" true)
+        (object_uses_cinematic_lighting "cruiser_12" true)
+    )
+)
+
+(script static void x01_04_setup
+    (begin
+        (wake x01_0080_por)
+        (wake x01_0090_der)
+        (wake x01_0100_por)
+        (wake x01_0110_der)
+        (wake cinematic_lighting_scene_04)
+    )
+)
+
+(script dormant void x01_04_cleanup
+    (begin
+        (object_destroy "poa_01")
+        (object_destroy "halo_whole")
+        (object_destroy_containing "cruiser")
+        (object_destroy_containing "matte")
+    )
+)
+
+(script static void x01_scene_04
+    (begin
+        (print "x01 scene 04 start")
+        (x01_04_setup)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\x01\x01" "x01_04" none "anchor_flag_x01a")
+        (scenery_animation_start_relative "cruiser_01" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship01" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_02" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship02" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_03" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship03" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_04" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship04" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_05" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship05" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_06" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship06" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_07" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship07" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_08" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship08" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_09" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship09" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_10" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship10" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_11" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship11" "anchor_x01a")
+        (scenery_animation_start_relative "cruiser_12" "scenarios\objects\covenant\military\battle_cruiser\x01\x01" "04_ship12" "anchor_x01a")
+        (scenery_animation_start_relative "matte_threshold" "objects\cinematics\matte_paintings\threshold_space\x01\x01" "threshold_space_04" "anchor_x01a")
+        (scenery_animation_start_relative "halo_whole" "scenarios\objects\forerunner\industrial\halo\x01\x01" "halo_04" "anchor_x01a")
+        (scenery_animation_start_relative "matte_stardust_01" "objects\cinematics\matte_paintings\high_charity_stardust\x01\x01" "stardust01_04" "anchor_x01a")
+        (sleep (- (camera_set_pan) prediction_offset))
+        (x01_05_predict_stub)
+        (sleep (- (camera_set_pan) sound_offset))
+        (sound_impulse_start "sound\cinematics\01_spacestation\x01\foley\x01_05_fol")
+        (sleep (- (camera_set_pan) 15.0))
+        (cinematic_stop 1.0 1.0 1.0 15)
+        (sleep 15)
+        (wake x01_04_cleanup)
+    )
+)
+
+(script dormant void x01_foley_05
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\cinematics\01_spacestation\x01\foley\x01_05_fol" none 1.0)
+        (print "x01 foley 05 start")
+    )
+)
+
+(script dormant void x01_0120_por
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0120_por" "regret" 1.0)
+        (attract_mode_set_seconds "x01_0120_por" 4.0)
+        (unit_set_emotional_state "regret" "arrogant" 0.5 90)
+    )
+)
+
+(script dormant void x01_0130_por
+    (begin
+        (sleep 141)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0130_por" "regret" 1.0)
+        (attract_mode_set_seconds "x01_0130_por" 3.0)
+        (unit_set_emotional_state "regret" "angry" 1.0 30)
+    )
+)
+
+(script dormant void cinematic_lighting_scene_05
+    (begin
+        (cinematic_lighting_set_primary_light -90.0 116.0 0.258824 0.258824 0.317647)
+        (cinematic_lighting_set_secondary_light -26.0 148.0 0.254902 0.203922 0.270588)
+        (cinematic_lighting_set_ambient_light 0.00784314 0.00784314 0.00784314)
+        (rasterizer_bloom_override_box_factor 0.3)
+        (rasterizer_bloom_override_max_factor 0.5)
+        (object_uses_cinematic_lighting "mercy" true)
+        (object_uses_cinematic_lighting "regret" true)
+    )
+)
+
+(script static void x01_05_setup
+    (begin
+        (wake x01_foley_05)
+        (wake x01_0120_por)
+        (wake x01_0130_por)
+        (wake cinematic_lighting_scene_05)
+    )
+)
+
+(script static void x01_scene_05
+    (begin
+        (sound_class_enable_ducker "amb" 1.0 1)
+        (x01_05_setup)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\x01\x01" "x01_05" none "anchor_flag_x01b")
+        (cinematic_start 1.0 1.0 1.0 15)
+        (custom_animation_relative "mercy" "objects\characters\prophet\x01\x01" "mercy_05" false "anchor_x01b")
+        (custom_animation_relative "regret" "objects\characters\prophet\x01\x01" "regret_05" false "anchor_x01b")
+        (sleep (- (camera_set_pan) prediction_offset))
+        (x01_06_predict_stub)
+        (sleep (- (camera_set_pan) sound_offset))
+        (sound_impulse_start "sound\cinematics\01_spacestation\x01\foley\x01_06_fol")
+        (sleep (camera_set_pan))
+    )
+)
+
+(script dormant void x01_foley_06
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\cinematics\01_spacestation\x01\foley\x01_06_fol" none 1.0)
+        (print "x01 foley 06 start")
+    )
+)
+
+(script dormant void x01_0140_der
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0140_der" "dervish" 1.0)
+        (attract_mode_set_seconds "x01_0140_der" 4.0)
+    )
+)
+
+(script dormant void x01_0150_cch
+    (begin
+        (sleep 112)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0150_cch" none 1.0)
+        (attract_mode_set_seconds "x01_0150_cch" 3.0)
+    )
+)
+
+(script dormant void x01_0160_pom
+    (begin
+        (sleep 199)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0160_pom" "mercy" 1.0)
+        (attract_mode_set_seconds "x01_0160_pom" 2.0)
+    )
+)
+
+(script dormant void x01_0170_pot
+    (begin
+        (sleep 330)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0170_pot" "truth" 1.0)
+        (attract_mode_set_seconds "x01_0170_pot" 6.0)
+    )
+)
+
+(script dormant void x01_0180_der
+    (begin
+        (sleep 524)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0180_der" none 1.0)
+        (attract_mode_set_seconds "x01_0180_der" 8.0)
+    )
+)
+
+(script dormant void cinematic_lighting_scene_06
+    (begin
+        (cinematic_lighting_set_primary_light -90.0 116.0 0.258824 0.258824 0.317647)
+        (cinematic_lighting_set_secondary_light -26.0 148.0 0.254902 0.203922 0.270588)
+        (cinematic_lighting_set_ambient_light 0.00784314 0.00784314 0.00784314)
+        (object_uses_cinematic_lighting "dervish" true)
+        (object_uses_cinematic_lighting "truth" true)
+        (object_uses_cinematic_lighting "mercy" true)
+        (object_uses_cinematic_lighting "regret" true)
+    )
+)
+
+(script static void x01_06_setup
+    (begin
+        (object_create_anew "truth")
+        (object_create_anew "throne_truth")
+        (object_cinematic_lod "truth" true)
+        (object_cinematic_lod "throne_truth" true)
+        (objects_attach "truth" "" "throne_truth" "driver_cinematic")
+        (wake x01_foley_06)
+        (wake x01_0140_der)
+        (wake x01_0150_cch)
+        (wake x01_0160_pom)
+        (wake x01_0170_pot)
+        (wake x01_0180_der)
+        (wake cinematic_lighting_scene_06)
+    )
+)
+
+(script static void x01_07_problem_actors
+    (begin
+        (print "problem actors")
+        (object_create_anew "halo_exploding")
+        (object_cinematic_lod "halo_exploding" true)
+    )
+)
+
+(script static void x01_scene_06
+    (begin
+        (print "x01 scene 06 start")
+        (x01_06_setup)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\x01\x01" "x01_06" none "anchor_flag_x01b")
+        (custom_animation_relative "dervish" "objects\characters\dervish\x01\x01" "dervish_06" false "anchor_x01b")
+        (custom_animation_relative "truth" "objects\characters\prophet\x01\x01" "truth_06" false "anchor_x01b")
+        (custom_animation_relative "mercy" "objects\characters\prophet\x01\x01" "mercy_06" false "anchor_x01b")
+        (custom_animation_relative "regret" "objects\characters\prophet\x01\x01" "regret_06" false "anchor_x01b")
+        (sleep (- (camera_set_pan) prediction_offset))
+        (x01_07_predict_stub)
+        (x01_07_problem_actors)
+        (sleep (- (camera_set_pan) sound_offset))
+        (sound_impulse_start "sound\cinematics\01_spacestation\x01\foley\x01_07_fol")
+        (sleep (- (camera_set_pan) 15.0))
+        (cinematic_stop 1.0 1.0 1.0 15)
+        (sleep 15)
+    )
+)
+
+(script dormant void x01_foley_07
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\cinematics\01_spacestation\x01\foley\x01_07_fol" none 1.0)
+        (print "x01 foley 07 start")
+    )
+)
+
+(script dormant void x01_0190_der
+    (begin
+        (sleep 93)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0190_der" none 1.0)
+        (attract_mode_set_seconds "x01_0190_der" 1.0)
+    )
+)
+
+(script dormant void cinematic_lighting_scene_07
+    (begin
+        (cinematic_lighting_set_primary_light 56.0 18.0 0.4 0.380392 0.270588)
+        (cinematic_lighting_set_secondary_light -77.0 40.0 0.172549 0.172549 0.372549)
+        (cinematic_lighting_set_ambient_light 0.0 0.0 0.0)
+        (rasterizer_bloom_override_box_factor 0.6)
+        (rasterizer_bloom_override_max_factor 0.5)
+        (object_uses_cinematic_lighting "halo_exploding" true)
+    )
+)
+
+(script dormant void halo_explosion
+    (begin
+        (sleep 60)
+        (print "effect - halo explosion")
+        (effect_new_on_object_marker "effects\cinematics\01\halo_destruction" "halo_exploding" "explosion_poa_front")
+    )
+)
+
+(script static void x01_07_setup
+    (begin
+        (wake x01_foley_07)
+        (wake x01_0190_der)
+        (wake halo_explosion)
+        (wake cinematic_lighting_scene_07)
+        (effect_new_on_object_marker "effects\cinematics\01_outro\alpha_halo_explosion" "halo_exploding" "explosion_poa_front")
+    )
+)
+
+(script static void x01_scene_07
+    (begin
+        (sound_class_enable_ducker "amb" 0.0 1)
+        (x01_07_setup)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\x01\x01" "x01_07" none "anchor_flag_x01a")
+        (cinematic_start 1.0 1.0 1.0 15)
+        (scenery_animation_start_relative "halo_exploding" "scenarios\objects\forerunner\industrial\halo_exploding\x01\x01" "halo_07" "anchor_x01a")
+        (sleep (- (camera_set_pan) prediction_offset))
+        (x01_08_predict_stub)
+        (sleep (- (camera_set_pan) 15.0))
+        (cinematic_stop 1.0 1.0 1.0 15)
+        (sleep 15)
+        (object_destroy "halo_exploding")
+    )
+)
+
+(script dormant void x01_0200_pcc
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0200_pcc" none 1.0)
+        (attract_mode_set_seconds "x01_0200_pcc" 7.0)
+    )
+)
+
+(script dormant void x01_0210_tar
+    (begin
+        (sleep 244)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0210_tar" "tartarus" 1.0)
+        (attract_mode_set_seconds "x01_0210_tar" 1.0)
+    )
+)
+
+(script dormant void x01_0220_por
+    (begin
+        (sleep 279)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0220_por" "regret" 1.0)
+        (attract_mode_set_seconds "x01_0220_por" 7.0)
+        (unit_set_emotional_state "regret" "angry" 0.5 60)
+    )
+)
+
+(script dormant void x01_0230_pot
+    (begin
+        (sleep 470)
+        (unit_set_emotional_state "truth" "angry" 0.25 60)
+        (sleep 20)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0230_pot" "truth" 1.0)
+        (attract_mode_set_seconds "x01_0230_pot" 7.0)
+        (unit_set_emotional_state "regret" "shocked" 0.5 30)
+        (sleep 60)
+        (unit_set_emotional_state "regret" "arrogant" 0.5 60)
+    )
+)
+
+(script dormant void x01_0240_pot
+    (begin
+        (sleep 705)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0240_pot" "truth" 1.0)
+        (attract_mode_set_seconds "x01_0240_pot" 6.0)
+    )
+)
+
+(script dormant void x01_08_fov
+    (begin
+        (sleep 689)
+        (camera_pan 38.0 0)
+        (print "fov change: 60 -> 38 over 0 ticks")
+        (sleep 111)
+        (camera_pan 60.0 0)
+        (print "fov change: 38 -> 60 over 0 ticks")
+    )
+)
+
+(script dormant void cinematic_lighting_scene_08
+    (begin
+        (cinematic_lighting_set_primary_light -90.0 116.0 0.258824 0.258824 0.317647)
+        (cinematic_lighting_set_secondary_light -26.0 148.0 0.254902 0.203922 0.270588)
+        (cinematic_lighting_set_ambient_light 0.00784314 0.00784314 0.00784314)
+        (rasterizer_bloom_override_box_factor 0.3)
+        (rasterizer_bloom_override_max_factor 0.5)
+        (object_uses_cinematic_lighting "dervish" true)
+        (object_uses_cinematic_lighting "truth" true)
+        (object_uses_cinematic_lighting "mercy" true)
+        (object_uses_cinematic_lighting "regret" true)
+        (object_uses_cinematic_lighting "tartarus" true)
+        (object_uses_cinematic_lighting "prophet_counc_01" true)
+        (object_uses_cinematic_lighting "prophet_counc_02" true)
+        (object_uses_cinematic_lighting "elite_counc_01" true)
+        (object_uses_cinematic_lighting "elite_counc_02" true)
+    )
+)
+
+(script static void x01_08_setup
+    (begin
+        (object_destroy "elc_26")
+        (object_destroy "elc_27")
+        (object_destroy "pcc_33")
+        (object_destroy "pcc_34")
+        (object_create_anew "prophet_counc_01")
+        (object_create_anew "prophet_counc_02")
+        (object_create_anew "elite_counc_01")
+        (object_create_anew "elite_counc_02")
+        (object_cinematic_lod "prophet_counc_01" true)
+        (object_cinematic_lod "prophet_counc_02" true)
+        (object_cinematic_lod "elite_counc_01" true)
+        (object_cinematic_lod "elite_counc_02" true)
+        (wake x01_0200_pcc)
+        (wake x01_0210_tar)
+        (wake x01_0220_por)
+        (wake x01_0230_pot)
+        (wake x01_0240_pot)
+        (wake x01_08_fov)
+        (wake cinematic_lighting_scene_08)
+    )
+)
+
+(script static void x01_08_cleanup
+    (begin
+        (cinematic_set_far_clip_distance)
+        (print "rack focus stop")
+        (object_destroy "elite_counc_01")
+        (object_destroy "elite_counc_02")
+    )
+)
+
+(script static void x01_scene_08
+    (begin
+        (sound_class_enable_ducker "amb" 1.0 1)
+        (print "x01 scene 08 start")
+        (x01_08_setup)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\x01\x01" "x01_08" none "anchor_flag_x01b")
+        (cinematic_start 1.0 1.0 1.0 15)
+        (custom_animation_relative "dervish" "objects\characters\dervish\x01\x01" "dervish_08" false "anchor_x01b")
+        (custom_animation_relative "truth" "objects\characters\prophet\x01\x01" "truth_08" false "anchor_x01b")
+        (custom_animation_relative "mercy" "objects\characters\prophet\x01\x01" "mercy_08" false "anchor_x01b")
+        (custom_animation_relative "regret" "objects\characters\prophet\x01\x01" "regret_08" false "anchor_x01b")
+        (custom_animation_relative "tartarus" "objects\characters\brute\x01\x01" "tartarus_08" false "anchor_x01b")
+        (custom_animation_relative "prophet_counc_01" "objects\characters\prophet\x01\x01" "prophet01_08" false "anchor_x01b")
+        (custom_animation_relative "prophet_counc_02" "objects\characters\prophet\x01\x01" "prophet02_08" false "anchor_x01b")
+        (custom_animation_relative "elite_counc_01" "objects\characters\elite\x01\x01" "elite01_08" false "anchor_x01b")
+        (custom_animation_relative "elite_counc_02" "objects\characters\elite\x01\x01" "elite02_08" false "anchor_x01b")
+        (scenery_animation_start_relative "hammer" "objects\weapons\melee\gravity_hammer\x01\x01" "hammer_08" "anchor_x01b")
+        (sleep (- (camera_set_pan) prediction_offset))
+        (x01_09_predict_stub)
+        (sleep (camera_set_pan))
+        (x01_08_cleanup)
+    )
+)
+
+(script dormant void x01_0250_pc1
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0250_pc1" none 1.0)
+        (attract_mode_set_seconds "x01_0250_pc1" 3.0)
+    )
+)
+
+(script dormant void x01_0260_pcc
+    (begin
+        (sleep 60)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0260_pcc" none 1.0)
+        (attract_mode_set_seconds "x01_0260_pcc" 9.0)
+    )
+)
+
+(script dormant void x01_0270_der
+    (begin
+        (sleep 252)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0270_der" "dervish" 1.0)
+        (attract_mode_set_seconds "x01_0270_der" 4.0)
+    )
+)
+
+(script dormant void x01_0280_pot
+    (begin
+        (sleep 376)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0280_pot" "truth" 1.0)
+        (attract_mode_set_seconds "x01_0280_pot" 3.0)
+        (sleep 30)
+        (unit_set_emotional_state "truth" "arrogant" 0.5 60)
+    )
+)
+
+(script dormant void x01_0290_tar
+    (begin
+        (sleep 494)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0290_tar" "tartarus" 1.0)
+        (attract_mode_set_seconds "x01_0290_tar" 1.0)
+    )
+)
+
+(script dormant void x01_09_fov
+    (begin
+        (sleep 441)
+        (camera_pan 38.0 0)
+        (print "fov change: 60 -> 38 over 0 ticks")
+    )
+)
+
+(script dormant void cinematic_lighting_scene_09
+    (begin
+        (cinematic_lighting_set_primary_light -90.0 116.0 0.258824 0.258824 0.317647)
+        (cinematic_lighting_set_secondary_light -26.0 148.0 0.254902 0.203922 0.270588)
+        (cinematic_lighting_set_ambient_light 0.00784314 0.00784314 0.00784314)
+        (object_uses_cinematic_lighting "hammer" true)
+        (object_uses_cinematic_lighting "elc_26" true)
+        (object_uses_cinematic_lighting "elc_27" true)
+    )
+)
+
+(script static void x01_10_problem_actors
+    (begin
+        (print "problem actors")
+        (object_create_anew "brute_01")
+        (object_create_anew "brute_02")
+        (object_cinematic_lod "brute_01" true)
+        (object_cinematic_lod "brute_02" true)
+    )
+)
+
+(script static void x01_09_setup
+    (begin
+        (object_create_anew "elc_26")
+        (object_create_anew "elc_27")
+        (wake x01_0250_pc1)
+        (wake x01_0260_pcc)
+        (wake x01_0270_der)
+        (wake x01_0280_pot)
+        (wake x01_0290_tar)
+        (wake x01_09_fov)
+        (wake cinematic_lighting_scene_09)
+    )
+)
+
+(script static void x01_09_cleanup
+    (begin
+        (object_destroy "prophet_counc_01")
+        (object_destroy "prophet_counc_02")
+    )
+)
+
+(script static void x01_scene_09
+    (begin
+        (print "x01 scene 09 start")
+        (x01_09_setup)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\x01\x01" "x01_09" none "anchor_flag_x01b")
+        (custom_animation_relative "dervish" "objects\characters\dervish\x01\x01" "dervish_09" false "anchor_x01b")
+        (custom_animation_relative "truth" "objects\characters\prophet\x01\x01" "truth_09" false "anchor_x01b")
+        (custom_animation_relative "mercy" "objects\characters\prophet\x01\x01" "mercy_09" false "anchor_x01b")
+        (custom_animation_relative "regret" "objects\characters\prophet\x01\x01" "regret_09" false "anchor_x01b")
+        (custom_animation_relative "tartarus" "objects\characters\brute\x01\x01" "tartarus_09" false "anchor_x01b")
+        (custom_animation_relative "prophet_counc_01" "objects\characters\prophet\x01\x01" "prophet01_09" false "anchor_x01b")
+        (custom_animation_relative "prophet_counc_02" "objects\characters\prophet\x01\x01" "prophet02_09" false "anchor_x01b")
+        (scenery_animation_start_relative "hammer" "objects\weapons\melee\gravity_hammer\x01\x01" "hammer_09" "anchor_x01b")
+        (sleep (- (camera_set_pan) prediction_offset))
+        (x01_10_predict_stub)
+        (x01_10_problem_actors)
+        (sleep (- (camera_set_pan) sound_offset))
+        (sound_impulse_start "sound\cinematics\01_spacestation\x01\music\x01_c01_intro_trans_mus")
+        (sleep (camera_set_pan))
+        (x01_09_cleanup)
+        (cinematic_set_far_clip_distance)
+    )
+)
+
+(script dormant void x01_score_10
+    (begin
+        (sleep 79)
+        (sound_impulse_start_effect "sound\cinematics\01_spacestation\x01\music\x01_c01_intro_trans_mus" none 1.0)
+        (print "x01 score 10 start")
+    )
+)
+
+(script dormant void x01_0300_pot
+    (begin
+        (sleep 20)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0300_pot" "truth" 1.0)
+        (attract_mode_set_seconds "x01_0300_pot" 2.0)
+    )
+)
+
+(script dormant void x01_0310_cch
+    (begin
+        (sleep 98)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0310_cch" none 1.0)
+        (attract_mode_set_seconds "x01_0310_cch" 3.0)
+    )
+)
+
+(script dormant void x01_0320_pot
+    (begin
+        (sleep 180)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0320_pot" none 1.0)
+        (attract_mode_set_seconds "x01_0320_pot" 4.0)
+    )
+)
+
+(script dormant void x01_0330_pot
+    (begin
+        (sleep 329)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\x01_0330_pot" "truth" 1.0)
+        (attract_mode_set_seconds "x01_0330_pot" 2.0)
+    )
+)
+
+(script dormant void cinematic_lighting_scene_10
+    (begin
+        (cinematic_lighting_set_primary_light 19.0 298.0 0.266667 0.266667 0.317647)
+        (cinematic_lighting_set_secondary_light -53.0 106.0 0.168627 0.168627 0.223529)
+        (cinematic_lighting_set_ambient_light 0.0 0.0 0.0)
+        (object_uses_cinematic_lighting "brute_01" true)
+        (object_uses_cinematic_lighting "brute_02" true)
+        (object_uses_cinematic_lighting "pcc_19" true)
+        (object_uses_cinematic_lighting "pcc_20" true)
+        (object_uses_cinematic_lighting "pcc_23" true)
+        (object_uses_cinematic_lighting "pcc_24" true)
+        (object_uses_cinematic_lighting "pcc_25" true)
+    )
+)
+
+(script dormant void improve_framerate
+    (begin
+        (rasterizer_profile_include_all)
+        (sleep 223)
+        (print "improve framerate")
+        (object_destroy_containing "pcc")
+        (object_destroy_containing "elc")
+    )
+)
+
+(script static void x01_10_setup
+    (begin
+        (object_create_anew "pcc_19")
+        (object_create_anew "pcc_20")
+        (object_create_anew "pcc_23")
+        (object_create_anew "pcc_24")
+        (object_create_anew "pcc_25")
+        (wake x01_score_10)
+        (wake improve_framerate)
+        (wake x01_0300_pot)
+        (wake x01_0310_cch)
+        (wake x01_0320_pot)
+        (wake x01_0330_pot)
+        (wake cinematic_lighting_scene_10)
+    )
+)
+
+(script static void x01_10_cleanup
+    (begin
+        (object_destroy "dervish")
+        (object_destroy "truth")
+        (object_destroy "mercy")
+        (object_destroy "regret")
+        (object_destroy "tartarus")
+        (object_destroy_containing "throne")
+        (object_destroy_containing "brute")
+        (object_destroy_containing "ehg")
+        (object_destroy "hammer")
+    )
+)
+
+(script static void x01_scene_10
+    (begin
+        (x01_10_setup)
+        (camera_pan 60.0 0)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\x01\x01" "x01_10" none "anchor_flag_x01b")
+        (custom_animation_relative "dervish" "objects\characters\dervish\x01\x01" "dervish_10" false "anchor_x01b")
+        (custom_animation_relative "truth" "objects\characters\prophet\x01\x01" "truth_10" false "anchor_x01b")
+        (custom_animation_relative "mercy" "objects\characters\prophet\x01\x01" "mercy_10" false "anchor_x01b")
+        (custom_animation_relative "regret" "objects\characters\prophet\x01\x01" "regret_10" false "anchor_x01b")
+        (custom_animation_relative "tartarus" "objects\characters\brute\x01\x01" "tartarus_10" false "anchor_x01b")
+        (custom_animation_relative "brute_01" "objects\characters\brute\x01\x01" "brute01_10" false "anchor_x01b")
+        (custom_animation_relative "brute_02" "objects\characters\brute\x01\x01" "brute02_10" false "anchor_x01b")
+        (scenery_animation_start_relative "hammer" "objects\weapons\melee\gravity_hammer\x01\x01" "hammer_10" "anchor_x01b")
+        (sleep (- (camera_set_pan) prediction_offset))
+        (01_intro_01_predict_stub)
+        (sleep (- (camera_set_pan) sound_offset))
+        (sound_impulse_start "sound\cinematics\01_spacestation\c01_intro\foley\c01_intro_01_fol")
+        (cinematic_screen_effect_set_crossfade true)
+        (sleep (- (camera_set_pan) 16.0))
+        (cinematic_screen_effect_stop 1.0)
+        (sleep 1)
+        (x01_10_cleanup)
+    )
+)
+
+(script dormant void c01_intro_foley_01
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\cinematics\01_spacestation\c01_intro\foley\c01_intro_01_fol" none 1.0)
+        (print "c01 intro foley 01 start")
+    )
+)
+
+(script dormant void c01_1010_qtm
+    (begin
+        (sleep 390)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\c01_1010_qtm" none 1.0)
+        (attract_mode_set_seconds "c01_1010_qtm" 3.0)
+    )
+)
+
+(script dormant void c01_intro_supratitle_01
+    (begin
+        (sleep 285)
+        (cinematic_suppress_bsp_object_creation "cinematic_title1")
+    )
+)
+
+(script dormant void lens_flares
+    (begin
+        (object_create_anew_containing "yellow_01")
+        (sleep 15)
+        (object_create_anew_containing "yellow_02")
+        (sleep 15)
+        (object_create_anew_containing "red")
+    )
+)
+
+(script dormant void c01_intro_dof_01
+    (begin
+        (rasterizer_profile_include_all)
+        (sleep 404)
+        (object_destroy "athens")
+        (object_destroy "malta")
+        (object_destroy "poa_01")
+        (print "rack focus")
+        (cinematic_screen_effect_set_crossfade true)
+        (cinematic_screen_effect_set_crossfade2 1.5 1.0 1.0 0.0 0.0 0.0 0.0)
+    )
+)
+
+(script dormant void cinematic_lighting_c01_scene_01
+    (begin
+        (cinematic_lighting_set_primary_light -11.0 360.0 0.415686 0.415686 0.501961)
+        (cinematic_lighting_set_secondary_light 41.0 230.0 0.0 0.0 0.0)
+        (cinematic_lighting_set_ambient_light 0.0588235 0.0470588 0.0431373)
+        (rasterizer_bloom_override_box_factor 0.6)
+        (rasterizer_bloom_override_max_factor 0.5)
+        (object_uses_cinematic_lighting "cairo" true)
+        (object_uses_cinematic_lighting "malta" true)
+        (object_uses_cinematic_lighting "athens" true)
+        (object_uses_cinematic_lighting "poa_01" true)
+        (object_uses_cinematic_lighting "poa_02" true)
+        (object_uses_cinematic_lighting "poa_03" true)
+        (object_uses_cinematic_lighting "iac_01" true)
+        (object_uses_cinematic_lighting "iac_02" true)
+        (object_uses_cinematic_lighting "iac_03" true)
+        (object_uses_cinematic_lighting "iac_04" true)
+        (object_uses_cinematic_lighting "iac_05" true)
+        (object_uses_cinematic_lighting "fighter_01" true)
+        (object_uses_cinematic_lighting "fighter_02" true)
+        (object_uses_cinematic_lighting "fighter_03" true)
+        (object_uses_cinematic_lighting "fighter_04" true)
+        (object_uses_cinematic_lighting "fighter_05" true)
+        (object_uses_cinematic_lighting "fighter_06" true)
+        (object_uses_cinematic_lighting "fighter_08" true)
+    )
+)
+
+(script static void c01_02_problem_actors
+    (begin
+        (print "problem actors")
+        (object_create_anew "master_guns")
+        (object_create_anew "armory")
+        (object_create_anew "cart")
+        (object_create_anew "optics")
+        (object_create_anew "power_supply")
+        (object_cinematic_lod "master_guns" true)
+        (object_cinematic_lod "armory" true)
+        (object_cinematic_lod "cart" true)
+        (object_cinematic_lod "optics" true)
+        (object_cinematic_lod "power_supply" true)
+        (object_hide "master_guns" true)
+        (object_hide "armory" true)
+        (object_hide "cart" true)
+        (object_hide "optics" true)
+        (object_hide "power_supply" true)
+    )
+)
+
+(script dormant void ships_unhide
+    (begin
+        (sleep 150)
+        (print "ships unhide")
+        (object_hide "poa_01" false)
+        (object_hide "poa_02" false)
+        (object_hide "poa_03" false)
+    )
+)
+
+(script static void c01_intro_scene_01_setup
+    (begin
+        (object_create_anew "cairo")
+        (object_create_anew "malta")
+        (object_create_anew "athens")
+        (object_create_anew_containing "iac")
+        (object_create_anew_containing "poa")
+        (object_create_anew_containing "fighter")
+        (object_hide "poa_01" true)
+        (object_hide "poa_02" true)
+        (object_hide "poa_03" true)
+        (object_create_anew "matte_earth")
+        (object_create_anew "matte_moon")
+        (object_cinematic_lod "cairo" true)
+        (object_cinematic_lod "malta" true)
+        (object_cinematic_lod "athens" true)
+        (wake c01_intro_foley_01)
+        (wake c01_1010_qtm)
+        (wake ships_unhide)
+        (wake c01_intro_supratitle_01)
+        (wake lens_flares)
+        (wake cinematic_lighting_c01_scene_01)
+    )
+)
+
+(script static void c01_intro_scene_01_cleanup
+    (begin
+        (cinematic_set_far_clip_distance)
+        (print "rack focus stop")
+        (object_destroy "cairo")
+        (object_destroy "athens")
+        (object_destroy "malta")
+        (object_destroy_containing "iac")
+        (object_destroy_containing "poa")
+        (object_destroy_containing "fighter")
+        (object_destroy_containing "matte")
+    )
+)
+
+(script static void c01_intro_scene_01
+    (begin
+        (sound_class_enable_ducker "amb" 0.0 1)
+        (c01_intro_scene_01_setup)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\01_intro\01_intro" "01_intro_01" none "anchor_flag_x01a")
+        (scenery_animation_start_relative "athens" "scenarios\objects\solo\spacestation\ss_prop\01_intro\01_intro" "ss_prop01_01" "anchor_x01a")
+        (scenery_animation_start_relative "cairo" "objects\cinematics\human\cairo\cairo" "01_intro_01" "anchor_x01a")
+        (scenery_animation_start_relative "malta" "scenarios\objects\solo\spacestation\ss_prop\01_intro\01_intro" "ss_prop03_01" "anchor_x01a")
+        (scenery_animation_start_relative "iac_01" "objects\cinematics\human\inamberclad\01_intro\01_intro" "iac_01" "anchor_x01a")
+        (scenery_animation_start_relative "iac_02" "objects\cinematics\human\inamberclad\01_intro\01_intro" "iac_02" "anchor_x01a")
+        (scenery_animation_start_relative "iac_03" "objects\cinematics\human\inamberclad\01_intro\01_intro" "iac_03" "anchor_x01a")
+        (scenery_animation_start_relative "iac_04" "objects\cinematics\human\inamberclad\01_intro\01_intro" "iac_04" "anchor_x01a")
+        (scenery_animation_start_relative "iac_05" "objects\cinematics\human\inamberclad\01_intro\01_intro" "iac_05" "anchor_x01a")
+        (scenery_animation_start_relative "poa_01" "objects\cinematics\human\pillarofautumn\01_intro\01_intro" "poa_01" "anchor_x01a")
+        (scenery_animation_start_relative "poa_02" "objects\cinematics\human\pillarofautumn\01_intro\01_intro" "poa_02" "anchor_x01a")
+        (scenery_animation_start_relative "poa_03" "objects\cinematics\human\pillarofautumn\01_intro\01_intro" "poa_03" "anchor_x01a")
+        (scenery_animation_start_relative "fighter_01" "objects\vehicles\longsword\01_intro\01_intro" "longsword_01" "anchor_x01a")
+        (scenery_animation_start_relative "fighter_02" "objects\vehicles\longsword\01_intro\01_intro" "longsword_02" "anchor_x01a")
+        (scenery_animation_start_relative "fighter_03" "objects\vehicles\longsword\01_intro\01_intro" "longsword_03" "anchor_x01a")
+        (scenery_animation_start_relative "fighter_04" "objects\vehicles\longsword\01_intro\01_intro" "longsword_04" "anchor_x01a")
+        (scenery_animation_start_relative "fighter_05" "objects\vehicles\longsword\01_intro\01_intro" "longsword_05" "anchor_x01a")
+        (scenery_animation_start_relative "fighter_06" "objects\vehicles\longsword\01_intro\01_intro" "longsword_06" "anchor_x01a")
+        (scenery_animation_start_relative "fighter_07" "objects\vehicles\longsword\01_intro\01_intro" "longsword_07" "anchor_x01a")
+        (scenery_animation_start_relative "fighter_08" "objects\vehicles\longsword\01_intro\01_intro" "longsword_08" "anchor_x01a")
+        (scenery_animation_start_relative "matte_earth" "objects\cinematics\matte_paintings\earth_space\01_intro\01_intro" "earth_space_01" "anchor_x01a")
+        (scenery_animation_start_relative "matte_moon" "objects\cinematics\matte_paintings\moon\01_intro\01_intro" "moon_01" "anchor_x01a")
+        (sleep (- (camera_set_pan) prediction_offset))
+        (01_intro_02_predict_stub)
+        (c01_02_problem_actors)
+        (sleep (- (camera_set_pan) sound_offset))
+        (sound_impulse_start "sound\cinematics\01_spacestation\c01_intro\foley\c01_intro_02_fol")
+        (sleep (camera_set_pan))
+        (c01_intro_scene_01_cleanup)
+    )
+)
+
+(script dormant void c01_intro_foley_02
+    (begin
+        (sleep 0)
+        (sound_impulse_start_effect "sound\cinematics\01_spacestation\c01_intro\foley\c01_intro_02_fol" none 1.0)
+        (print "c01 intro foley 01 start")
+    )
+)
+
+(script dormant void c01_1020_qtm
+    (begin
+        (sleep 18)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\c01_1020_qtm" "master_guns" 1.0)
+        (attract_mode_set_seconds "c01_1020_qtm" 2.0)
+        (unit_set_emotional_state "master_guns" "annoyed" 1.0 0)
+        (print "master guns - annoyed 1 0")
+    )
+)
+
+(script dormant void c01_1030_qtm
+    (begin
+        (sleep 91)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\c01_1030_qtm" "master_guns" 1.0)
+        (attract_mode_set_seconds "c01_1030_qtm" 2.0)
+    )
+)
+
+(script dormant void c01_1040_qtm
+    (begin
+        (sleep 173)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\c01_1040_qtm" "master_guns" 1.0)
+        (attract_mode_set_seconds "c01_1040_qtm" 2.0)
+        (unit_set_emotional_state "master_guns" "angry" 1.0 15)
+        (print "master guns - angry 1 15")
+    )
+)
+
+(script dormant void c01_1050_mas
+    (begin
+        (sleep 396)
+        (sound_impulse_start_effect "sound\dialog\levels\01_spacestation\cinematic\c01_1050_mas" "chief" 1.0)
+        (attract_mode_set_seconds "c01_1050_mas" 1.0)
+    )
+)
+
+(script dormant void cinematic_lighting_c01_scene_02
+    (begin
+        (cinematic_lighting_set_primary_light 12.0 184.0 0.117647 0.109804 0.0901961)
+        (cinematic_lighting_set_secondary_light -48.0 106.0 0.113725 0.113725 0.0941177)
+        (cinematic_lighting_set_ambient_light 0.0352941 0.0392157 0.0666667)
+        (render_lights_enable_cinematic_shadow true "chief" "head" 0.25)
+        (rasterizer_bloom_override_box_factor 0.75)
+        (rasterizer_bloom_override_max_factor 0.5)
+        (object_uses_cinematic_lighting "chief" true)
+        (object_uses_cinematic_lighting "master_guns" true)
+        (object_uses_cinematic_lighting "armory" true)
+        (object_uses_cinematic_lighting "cart" true)
+        (object_uses_cinematic_lighting "optics" true)
+        (object_uses_cinematic_lighting "power_supply" true)
+        (object_uses_cinematic_lighting "helmet" true)
+    )
+)
+
+(script static void c01_intro_scene_02_setup
+    (begin
+        (object_hide "master_guns" false)
+        (object_hide "armory" false)
+        (object_hide "cart" false)
+        (object_hide "optics" false)
+        (object_hide "power_supply" false)
+        (object_create_anew "chief")
+        (object_create_anew "helmet")
+        (object_cinematic_lod "chief" true)
+        (object_cinematic_lod "helmet" true)
+        (wake c01_intro_foley_02)
+        (wake c01_1020_qtm)
+        (wake c01_1030_qtm)
+        (wake c01_1040_qtm)
+        (wake c01_1050_mas)
+        (wake cinematic_lighting_c01_scene_02)
+    )
+)
+
+(script static void c01_intro_scene_02_cleanup
+    (begin
+        (object_destroy "chief")
+        (object_destroy "master_guns")
+        (object_destroy "armory")
+        (object_destroy "cart")
+        (object_destroy "optics")
+        (object_destroy "power_supply")
+        (object_destroy "helmet")
+    )
+)
+
+(script static void c01_intro_scene_02
+    (begin
+        (set_decal_override)
+        (sound_class_enable_ducker "amb" 1.0 1)
+        (c01_intro_scene_02_setup)
+        (camera_set_animation_relative "objects\characters\cinematic_camera\01_intro\01_intro" "01_intro_02" none "anchor_flag_x01a")
+        (custom_animation_relative "chief" "objects\characters\masterchief\01_intro\01_intro" "chief_02" false "anchor_x01a")
+        (custom_animation_relative "master_guns" "objects\characters\marine\01_intro\01_intro" "quartermaster_02" false "anchor_x01a")
+        (scenery_animation_start_relative "armory" "objects\cinematics\human\cairo_armory\01_intro\01_intro" "cairo_armory_02" "anchor_x01a")
+        (scenery_animation_start_relative "cart" "objects\cinematics\human\equipment_cart\01_intro\01_intro" "equipment_cart_02" "anchor_x01a")
+        (scenery_animation_start_relative "optics" "objects\cinematics\human\optics\01_intro\01_intro" "optics_02" "anchor_x01a")
+        (scenery_animation_start_relative "power_supply" "objects\cinematics\human\power_core\01_intro\01_intro" "power_supply_02" "anchor_x01a")
+        (scenery_animation_start_relative "helmet" "objects\characters\masterchief\helmet\01_intro\01_intro" "helmet_02" "anchor_x01a")
+        (sleep (- (camera_set_pan) 15.0))
+        (sound_class_enable_ducker "amb" 0.0 15)
+        (cinematic_start_movie)
+        (rasterizer_debug_crap_pixel_shader)
+    )
+)
+
+(script static void intro
+    (begin
+        (sound_cache_flush)
+        (animation_cache_flush)
+        (sound_class_enable_ducker "device_door" 0.0 0)
+        (set_rasterizer_gamma)
+        (x01_scene_01a)
+        (x01_scene_01b)
+        (x01_scene_02)
+        (x01_scene_03)
+        (x01_scene_04)
+        (x01_scene_05)
+        (x01_scene_06)
+        (x01_scene_07)
+        (x01_scene_08)
+        (x01_scene_09)
+        (x01_scene_10)
+        (c01_intro_scene_01)
+        (c01_intro_scene_02)
+        (rasterizer_bloom_override_blur_amount false)
+    )
+)
+
+(script startup void (fade_out
+    (begin
+        (crash high_0)
+        (if (cinematic_skip_start) 
+            (begin
+                (intro)
+            )
+        )
+        (cinematic_skip_stop)
+        (game_revert)
+    )
+)
+
