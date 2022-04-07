@@ -1,6 +1,6 @@
 # Halo: Combat Evolved
 
-Game: Halo 1 Anniversary MCC Update 1
+Game: Halo 1 Anniversary MCC Update 1  
 Build: 01.03.43.0000
 
 
