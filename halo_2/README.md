@@ -17,6 +17,6 @@ Build:
 | 06a_sentinelwalls | Sacred Icon |
 | 06b_floodzone | Quarantine Zone |
 | 07a_highcharity | Gravemind |
-| 07b_forerunnership | High Charity |
 | 08a_deltacliffs | Uprising |
+| 07b_forerunnership | High Charity |
 | 08b_deltacontrol | The Great Journey |
